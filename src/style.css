@@ -7,7 +7,14 @@ body {
 }
 body.preventScroll {
 }
+* {
+  margin: 0;
+  padding: 0;
+}
 .preventScroll .main__content {
     height: calc(100vh - 44Px);
     overflow: hidden;
+}
+img {
+  vertical-align: middle;
 }

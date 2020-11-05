@@ -9,6 +9,10 @@ import api from './api'
 import axios from 'axios'
 import 'bh-mint-ui2/lib/style.css'
 import init from 'bh-mixin-sdk'
+import { Collapse, CollapseItem } from 'vant';
+
+Vue.use(Collapse);
+Vue.use(CollapseItem);
 
 if (window.smile) {
   window.Vue = Vue
