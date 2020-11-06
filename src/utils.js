@@ -1,5 +1,6 @@
 import axios from 'axios'
 import api from './api'
+import Vue from 'vue'
 
 const UA = navigator.userAgent.toLowerCase()
 
@@ -81,7 +82,7 @@ export function getJSONP({ url, params = {}, success }) {
     index && (stringParam += '&')
     stringParam += `${item}=${params[item]}`
   })
-  const callbackName = Symbol(1)
+  const callbackName = 'func' + Math.random().toString().replace('.', '')
   const _script = document.createElement('script')
   _script.src = `${url}?callbackName=${callbackName}&${stringParam}`
   _script.onload = function(){	
@@ -90,3 +91,7 @@ export function getJSONP({ url, params = {}, success }) {
   document.body.appendChild(_script)
   window[callbackName] = success
 }
+
+Vue.prototype.$get = Get
+Vue.prototype.$jsonp = getJSONP
+Vue.prototype.$post = Post

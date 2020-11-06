@@ -1,9 +1,12 @@
-import index from './pages/index/index.vue';
 export default {
     routes: [
         {
-            path: '/',
-            component: index
+          path: '/',
+          component: () => import('./pages/index/index.vue')
+        },
+        {
+          path: '/message',
+          component: () => import('./components/message.vue')
         }
     ]
 };
