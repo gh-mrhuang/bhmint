@@ -25,7 +25,7 @@ function serialize(data) {
 function getApi (name) {
   return api[name] || name
 }
-
+axios.defaults.withCredentials = true
 /**
  * @method Post
  * @description post请求
@@ -75,18 +75,19 @@ export const Get = (url, data = null, config = {}) => {
 //   }
 }
 
-export function getJSONP({ url, params = {}, success }) {
+export function getJSONP({ url, params = {}, success, callbackKey='callback' }) {
   if (Object.prototype.toString.call(params) !== '[object Object]') throw new Error('getJSONP error')
   let stringParam = ''
   Object.keys(params).forEach((item, index) => {
     index && (stringParam += '&')
     stringParam += `${item}=${params[item]}`
   })
+  stringParam = stringParam && `&${stringParam}`
   const callbackName = 'func' + Math.random().toString().replace('.', '')
   const _script = document.createElement('script')
-  _script.src = `${url}?callbackName=${callbackName}&${stringParam}`
+  _script.src = `${url}?${callbackKey}=${callbackName}${stringParam}`
   _script.onload = function(){	
-    document.body.removeChild(script);
+    document.body.removeChild(_script);
   }
   document.body.appendChild(_script)
   window[callbackName] = success

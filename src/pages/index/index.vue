@@ -21,6 +21,7 @@
           :key="index"
         >
           <mt-image :src="item.ZQPICURL" width="100%" height="161px"></mt-image>
+          <div class="home-swipe_title">{{item.TITLE}}</div>
         </mt-swipe-item>
       </mt-swipe>
     </div>
@@ -33,10 +34,15 @@
         <template #title>
           <div>
             代办任务
-            <mt-badge type="danger" size="small" class="home-task_icon">4</mt-badge>
+            <mt-badge type="danger" size="small" class="home-task_icon">{{taskList.taskDataTotal}}</mt-badge>
           </div>
         </template>
-        <div v-for="(item, index) in taskList" :key="index" class="home-task_item">{{item}}</div>
+        <div v-for="(item, index) in taskList.taskData" :key="index">
+          <div @click="openUrl(item.formUrl)" class="home-task_item">
+            <div>{{item.subject}}</div>
+            <div>{{item.createTime}}</div>
+          </div>
+        </div>
       </van-collapse-item>
     </van-collapse>
 
@@ -56,7 +62,12 @@
             OA办公
           </div>
         </template>
-        内容
+        <div class="home-server_oa">
+          <div v-for="(item, index) in oaList" :key="index" class="home-server_oaitem">
+            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
+            <div>{{item.title}}</div>
+          </div>
+        </div>
       </van-collapse-item>
       <van-collapse-item title="">
         <template #title>
@@ -65,7 +76,12 @@
             党办校办
           </div>
         </template>
-        内容
+        <div class="home-server_oa">
+          <div v-for="(item, index) in dxList" :key="index" class="home-server_oaitem">
+            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
+            <div>{{item.title}}</div>
+          </div>
+        </div>
       </van-collapse-item>
       <van-collapse-item title="">
         <template #title>
@@ -74,7 +90,12 @@
             组织人事
           </div>
         </template>
-        内容
+        <div class="home-server_oa">
+          <div v-for="(item, index) in zrList" :key="index" class="home-server_oaitem">
+            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
+            <div>{{item.title}}</div>
+          </div>
+        </div>
       </van-collapse-item>
       <van-collapse-item title="">
         <template #title>
@@ -83,7 +104,12 @@
             教学管理
           </div>
         </template>
-        内容
+        <div class="home-server_oa">
+          <div v-for="(item, index) in jgList" :key="index" class="home-server_oaitem">
+            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
+            <div>{{item.title}}</div>
+          </div>
+        </div>
       </van-collapse-item>
       <van-collapse-item title="">
         <template #title>
@@ -92,7 +118,12 @@
             质量控制
           </div>
         </template>
-        内容
+        <div class="home-server_oa">
+          <div v-for="(item, index) in zkList" :key="index" class="home-server_oaitem">
+            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
+            <div>{{item.title}}</div>
+          </div>
+        </div>
       </van-collapse-item>
       <van-collapse-item title="">
         <template #title>
@@ -101,7 +132,12 @@
             学生工作
           </div>
         </template>
-        内容
+        <div class="home-server_oa">
+          <div v-for="(item, index) in xgList" :key="index" class="home-server_oaitem">
+            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
+            <div>{{item.title}}</div>
+          </div>
+        </div>
       </van-collapse-item>
     </van-collapse>
 
@@ -138,21 +174,62 @@ export default {
       activeCollapseAllways: [],
       activeCollapseServer: [],
       swipeList: [],
-      taskList: [123,234],
+      taskList: [
+        {title: '123', date: '2020/09/11'},
+        {title: '123', date: '2020/09/11'},
+        {title: '123', date: '2020/09/11'},
+        {title: '123', date: '2020/09/11'},
+      ],
+      oaList: [
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+      ],
+      dxList: [
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+      ],
+      zrList: [
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+      ],
+      jgList: [
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+      ],
+      zkList: [
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+      ],
+      xgList: [
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+        {src: logo, title: 1234},
+      ],
     }
   },
   components: {
   },
-  mounted(){
+  created(){
     // global.SDK.setTitleText("首页")
     this.$get('https://imy.sgmart.edu.cn/psfw/sys/smgxwfbxt/xyyw/getGGInfo.do').then(res => {
       this.swipeList = res
     })
     this.$jsonp({
-      url: 'https://imy.sgmart.edu.cn /taskcenterapp/sys/taskCenter/portalDataReceive/getAllPortalTask.do',
+      url: 'https://imy.sgmart.edu.cn/taskcenterapp/sys/taskCenter/portalDataReceive/getAllPortalTask.do',
+      // params: {_: 1604715457736},
       success: (data) => {
-        console.log(data)
-        console.log(this)
+        this.taskList = data.queryTodoTask
       }
     })
   },
@@ -161,10 +238,13 @@ export default {
       this.popupVisible = true
     },
     handleMessage() {
-      this.$router.push('home')
+      this.$router.push('message')
     },
     handlePassword() {
 
+    },
+    openUrl(data) {
+      location.href = data
     }
   }
 }
@@ -221,6 +301,22 @@ export default {
 .home-swipe {
   height: 161px;
 }
+.home-swipe_title {
+  height: 28px;
+  line-height: 28px;
+  background: rgba(0,0,0,0.60);
+  width: 100%;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  font-size: 15px;
+  color: #FFFFFF;
+  letter-spacing: 0;
+}
 .home-server {
   background: #FFFFFF;
   padding-left: 17px;
@@ -244,8 +340,24 @@ export default {
   margin-left: 4px;
 }
 .home-task_item {
+  height: 56px;
   line-height: 56px;
   border-bottom: 1px solid #eee;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+}
+.home-task_item > div:first-child {
+  width: 70%;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  font-size: 17px;
+  color: #2B2B33;
+}
+.home-task_item > div:last-child {
+  font-size: 11px;
+  color: #999;
 }
 .home-bottom {
   height: 39px;
@@ -255,6 +367,7 @@ export default {
   color: #B1B1B1;
   letter-spacing: 0;
 }
+
 </style>
 
 <style>
@@ -271,6 +384,30 @@ export default {
   background-color: #fff;
 }
 .home-task .van-collapse-item__content {
-  padding: 0 0 0 17px;
+  padding: 0 17px;
+}
+.home-server_oa {
+  display: flex;
+}
+.home-server_oaitem {
+  width: 85px;
+  height: 85px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.home-server_oaitem div {
+  width: 100%;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #3D3D44;
+  margin-top: 8px;
+}
+.home-swipe .mint-swipe-indicators {
+  bottom: 35px;
 }
 </style>

@@ -64,7 +64,7 @@ module.exports = {
     historyApiFallback: true,
     noInfo: true,
     // host: '0.0.0.0',
-    port: 8080
+    port: 8080,
   },
   performance: {
     hints: false
@@ -98,7 +98,7 @@ if (process.env.NODE_ENV === 'production') {
       'process.env': {
         NODE_ENV: '"development"'
       },
-      "WEBPACK_CONFIG_HOST":'"http://amptest.wisedu.com/xsfwfw/"'
+      "WEBPACK_CONFIG_HOST":'"http://imy.sgmart.edu.cn/"'
     })
   ])
 }
