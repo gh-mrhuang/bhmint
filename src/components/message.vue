@@ -9,25 +9,27 @@
       <div>
         <div class="message-content_headimage">
           <mt-image :src="logoSrc" width="60px" height="60px"></mt-image>
-          长大山
+          {{personDetail.userName}}
         </div>
         <div class="message-content_sex">
-          <mt-icon :name="0 ? 'icon-male' : 'icon-female'"></mt-icon>
-          {{0 ? '男' : '女'}}
+          <mt-icon :name="personDetail.userSex === '男' ? 'icon-male' : 'icon-female'"></mt-icon>
+          {{personDetail.userSex}}
         </div>
       </div>
     </div>
 
     <div class="message-box">
-      <div>
+      <div v-for="item in messageList" :key="item.wid">
         <div class="home-task_item">
-          <div>工资</div><div>2020年10月</div>
+          <div>{{item.title}}</div><div>{{item.title === '邮箱' ? item.subTitle : getMessage(item.subTitle, 0)}}</div>
         </div>
         <div class="home-task_item">
-          <div>实发</div><div class="red">¥10000</div>
+          <div>{{item.title === '邮箱' ? item.imptInfo.replace(/(\D*)\d\D/, '$1') : getMessage(item.subTitle, 1)}}</div>
+          <div class="red">{{item.title === '邮箱' ? item.imptInfo.replace(/\D*(\d*)\D/, '$1') : item.imptInfo}}</div>
         </div>
       </div>
-      <div>
+
+      <!-- <div>
         <div class="home-task_item">
           <div>校园卡</div><div>2020年10月</div>
         </div>
@@ -35,6 +37,7 @@
           <div>余额</div><div class="red">¥10000</div>
         </div>
       </div>
+
       <div>
         <div class="home-task_item">
           <div>邮箱</div><div>2020年10月</div>
@@ -42,7 +45,7 @@
         <div class="home-task_item">
           <div>未读邮件</div><div class="red">10000</div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -53,13 +56,40 @@ export default {
   data () {
     return {
       logoSrc: logo,
+      messageList: [],
+      personDetail: {},
     }
   },
-  components:{
+  created() {
+    this.$get('https://imy.sgmart.edu.cn/jsonp/personalRemind/getView.do').then(res => {
+      this.messageList = res.data.visibleList || []
+      this.messageList.forEach(item => {
+        this.$get(
+          'https://imy.sgmart.edu.cn/jsonp/personalRemind/getViewDataDetail.do',
+          {
+            wid: item.wid,
+            mailAccount: item.mailAccount
+          }
+        ).then(data => {
+          Object.assign(item, data.data[0])
+        })
+      })
+    })
+    this.$get('https://imy.sgmart.edu.cn/jsonp/userDesktopInfo.json').then(res => {
+      this.personDetail = res.data
+    })
   },
   methods: {
     back() {
       this.$router.back()
+    },
+    getMessage(param, index) {
+      let res = ''
+      const arr = param.split('|')
+      if (arr.length === 2)  {
+        res = arr[index].trim()
+      }
+      return res
     }
   }
 }

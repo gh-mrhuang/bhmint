@@ -55,87 +55,18 @@
     </div>
 
     <van-collapse v-model="activeCollapseServer" class="home-server_details">
-      <van-collapse-item title="">
+
+      <van-collapse-item title="" v-for="item in allServerList" :key="item.categoryId">
         <template #title>
           <div>
             <!-- <mt-icon name="icon-wodezixun-" /> -->
-            OA办公
+            {{item.categoryName}}
           </div>
         </template>
         <div class="home-server_oa">
-          <div v-for="(item, index) in oaList" :key="index" class="home-server_oaitem">
-            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
-            <div>{{item.title}}</div>
-          </div>
-        </div>
-      </van-collapse-item>
-      <van-collapse-item title="">
-        <template #title>
-          <div>
-            <!-- <mt-icon name="icon-wodezixun-" /> -->
-            党办校办
-          </div>
-        </template>
-        <div class="home-server_oa">
-          <div v-for="(item, index) in dxList" :key="index" class="home-server_oaitem">
-            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
-            <div>{{item.title}}</div>
-          </div>
-        </div>
-      </van-collapse-item>
-      <van-collapse-item title="">
-        <template #title>
-          <div>
-            <!-- <mt-icon name="icon-wodezixun-" /> -->
-            组织人事
-          </div>
-        </template>
-        <div class="home-server_oa">
-          <div v-for="(item, index) in zrList" :key="index" class="home-server_oaitem">
-            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
-            <div>{{item.title}}</div>
-          </div>
-        </div>
-      </van-collapse-item>
-      <van-collapse-item title="">
-        <template #title>
-          <div>
-            <!-- <mt-icon name="icon-wodezixun-" /> -->
-            教学管理
-          </div>
-        </template>
-        <div class="home-server_oa">
-          <div v-for="(item, index) in jgList" :key="index" class="home-server_oaitem">
-            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
-            <div>{{item.title}}</div>
-          </div>
-        </div>
-      </van-collapse-item>
-      <van-collapse-item title="">
-        <template #title>
-          <div>
-            <!-- <mt-icon name="icon-wodezixun-" /> -->
-            质量控制
-          </div>
-        </template>
-        <div class="home-server_oa">
-          <div v-for="(item, index) in zkList" :key="index" class="home-server_oaitem">
-            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
-            <div>{{item.title}}</div>
-          </div>
-        </div>
-      </van-collapse-item>
-      <van-collapse-item title="">
-        <template #title>
-          <div>
-            <!-- <mt-icon name="icon-wodezixun-" /> -->
-            学生工作
-          </div>
-        </template>
-        <div class="home-server_oa">
-          <div v-for="(item, index) in xgList" :key="index" class="home-server_oaitem">
-            <mt-image :src="item.src" width="40px" height="40px"></mt-image>
-            <div>{{item.title}}</div>
+          <div v-for="e in item.apps" :key="e.appId" class="home-server_oaitem">
+            <mt-image :src="e.iconUrl" width="40px" height="40px"></mt-image>
+            <div>{{e.name}}</div>
           </div>
         </div>
       </van-collapse-item>
@@ -174,57 +105,36 @@ export default {
       activeCollapseAllways: [],
       activeCollapseServer: [],
       swipeList: [],
+      allServerList: [],
       taskList: [
         {title: '123', date: '2020/09/11'},
         {title: '123', date: '2020/09/11'},
         {title: '123', date: '2020/09/11'},
         {title: '123', date: '2020/09/11'},
-      ],
-      oaList: [
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-      ],
-      dxList: [
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-      ],
-      zrList: [
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-      ],
-      jgList: [
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-      ],
-      zkList: [
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-      ],
-      xgList: [
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-        {src: logo, title: 1234},
-      ],
+      ]
     }
   },
-  components: {
+  watch: {
+    searchVal(val) {
+      this.allServerList.forEach(item => {
+        item.apps = item.apps.filter(eve => eve.name.includes(val))
+      })
+    }
   },
   created(){
     // global.SDK.setTitleText("首页")
+
+    // 轮播图
     this.$get('https://imy.sgmart.edu.cn/psfw/sys/smgxwfbxt/xyyw/getGGInfo.do').then(res => {
       this.swipeList = res
     })
+
+    // 所有应用
+    this.$get('https://imy.sgmart.edu.cn/newmobile/client/userAppListGroupByCategory').then(res => {
+      this.allServerList = res.data.datas || []
+    })
+
+    // 代办任务
     this.$jsonp({
       url: 'https://imy.sgmart.edu.cn/taskcenterapp/sys/taskCenter/portalDataReceive/getAllPortalTask.do',
       // params: {_: 1604715457736},
@@ -388,6 +298,7 @@ export default {
 }
 .home-server_oa {
   display: flex;
+  flex-wrap: wrap;
 }
 .home-server_oaitem {
   width: 85px;
@@ -399,7 +310,7 @@ export default {
   align-items: center;
 }
 .home-server_oaitem div {
-  width: 100%;
+  width: 75px;
   overflow: hidden;
   text-overflow:ellipsis;
   white-space: nowrap;
