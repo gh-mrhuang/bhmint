@@ -1,18 +1,20 @@
 <template>
   <div class="page_border">
 
-    <div class="home-header">
-      <mt-image :src="logoSrc" width="31px" height="27px"></mt-image>
-      <div class="home-header_div">
-        <span>苏州工艺美术职业技术学院</span>
-        <mt-icon name="icon-wodexinxixuanzhong" class="home-header_icon" size="27px" @click="handlerOpen"></mt-icon>
+    <div class="home-head_fixed">
+      <div class="home-header">
+        <mt-image :src="logoSrc" width="31px" height="27px"></mt-image>
+        <div class="home-header_div">
+          <span>苏州工艺美术职业技术学院</span>
+          <mt-icon name="icon-wodexinxixuanzhong" class="home-header_icon" size="27px" @click="handlerOpen"></mt-icon>
+        </div>
       </div>
-    </div>
 
-    <mt-search
-      v-model="searchVal"
-      placeholder="请搜索移动服务">
-    </mt-search>
+      <mt-search
+        v-model="searchVal"
+        placeholder="请搜索移动服务">
+      </mt-search>
+    </div>
 
     <div v-if="swipeList.length">
       <mt-swipe :auto="5000" class="home-swipe">
@@ -111,7 +113,10 @@
       position="bottom">
       <div class="home-serve-List">
         <div v-for="item in appAllList" :key="item.appId" class="home-server_oaitem" @click="clickServer(item)">
-          <mt-image :src="item.iconUrl" width="40px" height="40px"></mt-image>
+          <div>
+            <mt-image :src="item.iconUrl" width="40px" height="40px"></mt-image>
+            <div class="home-server_add">+</div>
+          </div>
           <div>{{item.name}}</div>
         </div>
       </div>
@@ -149,8 +154,11 @@ export default {
   },
   watch: {
     searchVal(val) {
-      this.allServerList.forEach(item => {
-        item.apps = item.apps.filter(eve => eve.name.includes(val))
+      this.getAllServerList(() => {
+        this.allServerList = this.allServerList.filter(item => {
+          item.apps = item.apps.filter(eve => !val || eve.name.includes(val))
+          return item.apps.length
+        })
       })
     }
   },
@@ -160,7 +168,10 @@ export default {
       if (Array.isArray(this.allServerList)) {
         this.allServerList.forEach(item => {
           if (!Array.isArray(item.apps)) return
-          arr.push(...item.apps)
+          item.apps.forEach(eve => {
+            if(arr.includes(eve.appId) || this.cyServerList.some(e => e.APPID === eve.appId)) return
+            arr.push(eve)
+          })
         })
       }
       return arr
@@ -183,8 +194,9 @@ export default {
     },
     getCyServerList(cb = () => {}) {
       // 常用服务
-      this.$get('https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/getCollectAppList.do').then(res => {
-        this.cyServerList = [{"WID":"a4c46220-4de6-48d9-a5ee-72790c285b88","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5993136071349648/1.0_TR1/icon_72.png?_\u003d1599317644000","APPID":"5993136071349648","APPNAME":"苏美工自定义菜单栏系统","COLLECTOR":"ampadmin"},{"WID":"c0187c55-795a-4176-9282-64d76db31207","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5941082618903015/1.0_TR1/icon_72.png?_\u003d1599708773000","APPID":"5941082618903015","APPNAME":"新闻发布系统","COLLECTOR":"ampadmin"},{"WID":"771dceba-08d4-46d6-86da-5ea2129174cc","PICSRC":"https://imy.sgmart.edu.cn/resources/app/6001591337172457/1.0_R1/icon_72.png?_\u003d1600234920000","APPID":"6001591337172457","APPNAME":"教务管理系统","COLLECTOR":"ampadmin"},{"WID":"4f8af069-96eb-4d35-9fc8-bca29e573f67","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5995657239485927/1.0_EM1/icon_72.png?_\u003d1602859939000","APPID":"5995657239485927","APPNAME":"教职工请假申请单","COLLECTOR":"ampadmin"}]
+      this.$get('https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/getYdCollectAppList.do').then(res => {
+        // this.cyServerList = [{"WID":"a4c46220-4de6-48d9-a5ee-72790c285b88","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5993136071349648/1.0_TR1/icon_72.png?_\u003d1599317644000","APPID":"5993136071349648","APPNAME":"苏美工自定义菜单栏系统","COLLECTOR":"ampadmin"},{"WID":"c0187c55-795a-4176-9282-64d76db31207","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5941082618903015/1.0_TR1/icon_72.png?_\u003d1599708773000","APPID":"5941082618903015","APPNAME":"新闻发布系统","COLLECTOR":"ampadmin"},{"WID":"771dceba-08d4-46d6-86da-5ea2129174cc","PICSRC":"https://imy.sgmart.edu.cn/resources/app/6001591337172457/1.0_R1/icon_72.png?_\u003d1600234920000","APPID":"6001591337172457","APPNAME":"教务管理系统","COLLECTOR":"ampadmin"},{"WID":"4f8af069-96eb-4d35-9fc8-bca29e573f67","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5995657239485927/1.0_EM1/icon_72.png?_\u003d1602859939000","APPID":"5995657239485927","APPNAME":"教职工请假申请单","COLLECTOR":"ampadmin"}]
+        this.cyServerList = Array.isArray(res.data) ? res.data : []
         cb()
       })
     },
@@ -237,7 +249,7 @@ export default {
       MessageBox.confirm('确认删除此常用服务？', '提示').then(res => {
         if (res !== 'confirm') return
         this.$get(
-          'https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/DeleteCollectApp.do',
+          'https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/DeleteYdCollectApp.do',
           { WID: id }
         ).then(res => {
           this.getCyServerList(() => {
@@ -262,7 +274,7 @@ export default {
     },
     clickServer(data) {
       this.$get(
-        'https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/AddCollectApp.do',
+        'https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/AddYdCollectApp.do',
         {
           appId: data.appId,
           appName: data.name,
@@ -275,7 +287,6 @@ export default {
             position: 'top',
             duration: 1000
           })
-          this.serverPopupVisible = false
         })
       })
     }
@@ -287,6 +298,14 @@ export default {
 .page_border {
   background: #F7F7F7;
   width: 100vw;
+  padding-top: 95px;
+}
+.home-head_fixed {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 999;
 }
 .home-header {
   height: 50px;
@@ -424,7 +443,7 @@ export default {
   flex-wrap: wrap;
 }
 .home-server_oaitem {
-  width: 85px;
+  width: 25%;
   height: 85px;
   text-align: center;
   display: flex;
@@ -443,8 +462,20 @@ export default {
   line-height: 32px;
   text-align: center;
 }
-.home-server_oaitem div {
-  width: 75px;
+.home-server_oaitem > div:nth-child(1) {
+  position: relative;
+}
+.home-server_oaitem > div:nth-child(1) > .home-server_add {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  right: 0;
+  top: 0;
+  line-height: 14px;
+  font-size: 14px;
+}
+.home-server_oaitem > div:nth-child(2) {
+  width: 80%;
   overflow: hidden;
   text-overflow:ellipsis;
   white-space: nowrap;
@@ -459,7 +490,7 @@ export default {
   height: 50vh;
   overflow: auto;
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   flex-wrap: wrap;
 }
 </style>
