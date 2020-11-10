@@ -28,7 +28,7 @@
             </span>
             <template v-if="item.title === '邮箱'">
               <span @click="bindEmail" v-if="item.hpHide || !item.subTitle">绑定</span>
-              <span v-else @click="unBindEmail">解绑</span>
+              <span v-else @click="unBindEmail" style="color: #0a6bb7;margin-left: 10px;">解绑</span>
             </template>
           </div>
         </div>
@@ -56,7 +56,7 @@
         <div class="home-serve-List">
           <mt-field label="邮箱" placeholder="请输入邮箱" type="email" v-model="email" />
           <mt-field label="" v-model="emailType" disabled></mt-field>
-          <mt-field label="密码" placeholder="请输入密码" type="password" v-model="password" />
+          <mt-field label="密码" placeholder="请输入密码" v-model="password" />
           <mt-button type="primary" @click="cancelEmail" size="large">取消</mt-button>
           <mt-button type="primary" @click="confrimEmail" size="large">确认</mt-button>
         </div>
@@ -137,7 +137,7 @@ export default {
         }
       ).then(res => {
         Toast({
-          message: '绑定成功',
+          message: '解绑成功',
           position: 'top',
           duration: 1000
         })
@@ -151,7 +151,10 @@ export default {
       this.password = ''
     },
     confrimEmail() {
-      if (!this.email || !this.password) return
+      if (!this.email || !this.password) {
+        Toast("请输入邮箱账号密码")
+        return;
+      }
       const result = encode(this.password);  
       this.$get(
         'https://imy.sgmart.edu.cn/jsonp/personalRemind/bindMail.do',
@@ -167,6 +170,7 @@ export default {
           duration: 1000
         })
         this.userEmail = this.email
+        this.initMessage()
         this.emailPopup = false
       }).catch((err) => {
         Toast({

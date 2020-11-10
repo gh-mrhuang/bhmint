@@ -54,7 +54,7 @@
           <div
             v-for="item in cyServerList"
             :key="item.WID"
-            @touchstart="startTouch(item.WID)"
+            @touchstart="startTouch(item.APPID)"
             @touchend="endTouch"
             @click="openUrl(item.APPID, 1)"
             class="home-server_oaitem">
@@ -111,6 +111,7 @@
     <mt-popup
       v-model="serverPopupVisible"
       position="bottom">
+      <p style="height: 40px;line-height: 40px;color: #0a6bb7;text-align: right;padding-right: 20px;"><span @click="closePop">关闭</span></p>
       <div class="home-serve-List">
         <div v-for="item in appAllList" :key="item.appId" class="home-server_oaitem" @click="clickServer(item)">
           <div>
@@ -185,6 +186,9 @@ export default {
     this.getTaskList()
   },
   methods: {
+    closePop() {
+      this.serverPopupVisible = false;
+    },
     getSwipeList(cb = () => {}) {
       // 轮播图
       this.$get('https://imy.sgmart.edu.cn/psfw/sys/smgxwfbxt/xyyw/getGGInfo.do').then(res => {
@@ -195,7 +199,7 @@ export default {
     getCyServerList(cb = () => {}) {
       // 常用服务
       this.$get('https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/getYdCollectAppList.do').then(res => {
-        // this.cyServerList = [{"WID":"a4c46220-4de6-48d9-a5ee-72790c285b88","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5993136071349648/1.0_TR1/icon_72.png?_\u003d1599317644000","APPID":"5993136071349648","APPNAME":"苏美工自定义菜单栏系统","COLLECTOR":"ampadmin"},{"WID":"c0187c55-795a-4176-9282-64d76db31207","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5941082618903015/1.0_TR1/icon_72.png?_\u003d1599708773000","APPID":"5941082618903015","APPNAME":"新闻发布系统","COLLECTOR":"ampadmin"},{"WID":"771dceba-08d4-46d6-86da-5ea2129174cc","PICSRC":"https://imy.sgmart.edu.cn/resources/app/6001591337172457/1.0_R1/icon_72.png?_\u003d1600234920000","APPID":"6001591337172457","APPNAME":"教务管理系统","COLLECTOR":"ampadmin"},{"WID":"4f8af069-96eb-4d35-9fc8-bca29e573f67","PICSRC":"https://imy.sgmart.edu.cn/resources/app/5995657239485927/1.0_EM1/icon_72.png?_\u003d1602859939000","APPID":"5995657239485927","APPNAME":"教职工请假申请单","COLLECTOR":"ampadmin"}]
+
         this.cyServerList = Array.isArray(res.data) ? res.data : []
         cb()
       })
@@ -250,7 +254,7 @@ export default {
         if (res !== 'confirm') return
         this.$get(
           'https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/DeleteYdCollectApp.do',
-          { WID: id }
+          { appId: id }
         ).then(res => {
           this.getCyServerList(() => {
             Toast({
@@ -276,9 +280,7 @@ export default {
       this.$get(
         'https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/AddYdCollectApp.do',
         {
-          appId: data.appId,
-          appName: data.name,
-          picSrc: data.iconUrl,
+          data: JSON.stringify({appId: data.appId,appName: data.name,picSrc: data.iconUrl})
         }
       ).then(res => {
         this.getCyServerList(() => {
