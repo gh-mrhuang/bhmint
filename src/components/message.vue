@@ -68,7 +68,7 @@
 <script>
 import logo from '@/assets/imgs/_logo.png'
 import { Toast } from 'bh-mint-ui2';
-import { encode } from 'js-base64';
+import { Base64 } from 'js-base64';
 export default {
   data () {
     return {
@@ -88,8 +88,7 @@ export default {
   methods: {
     initMessage() {
       this.$get('https://imy.sgmart.edu.cn/jsonp/personalRemind/getView.do').then(res => {
-        this.messageList = res.data.visibleList || []
-        this.messageList.forEach(item => {
+        res.data.visibleList.forEach(item => {
           this.$get(
             'https://imy.sgmart.edu.cn/jsonp/personalRemind/getViewDataDetail.do',
             {
@@ -97,11 +96,10 @@ export default {
               mailAccount: item.mailAccount
             }
           ).then(data => {
-            if (!data.data[0]) {
-              this.$set(item, 'hpHide', true)
-              return
-            }
             Object.assign(item, data.data[0])
+            if (data.data.length > 0) {
+              this.messageList.push(item);
+            }
             if (item.title === '邮箱') {
               this.userEmail = item.subTitle
             }
@@ -155,7 +153,7 @@ export default {
         Toast("请输入邮箱账号密码")
         return;
       }
-      const result = encode(this.password);  
+      const result = Base64.encode(this.password);
       this.$get(
         'https://imy.sgmart.edu.cn/jsonp/personalRemind/bindMail.do',
         {

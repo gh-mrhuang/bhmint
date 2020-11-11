@@ -22,7 +22,7 @@
           v-for="(item, index) in swipeList"
           :key="index"
         >
-          <mt-image :src="item.ZQPICURL" width="100%" height="161px"></mt-image>
+          <mt-image :src="item.ZQPICURL" width="auto" height="161px"></mt-image>
           <div class="home-swipe_title">{{item.TITLE}}</div>
         </mt-swipe-item>
       </mt-swipe>
@@ -79,7 +79,7 @@
         <template #title>
           <div>
             <!-- <mt-icon name="icon-wodezixun-" /> -->
-            {{item.categoryName}}
+            {{item.categoryName}} ({{item.apps.length}})
           </div>
         </template>
         <div class="home-server_oa">
@@ -193,6 +193,10 @@ export default {
       // 轮播图
       this.$get('https://imy.sgmart.edu.cn/psfw/sys/smgxwfbxt/xyyw/getGGInfo.do').then(res => {
         this.swipeList = Array.isArray(res.data) ? res.data : []
+        this.swipeList.map(item => {
+          item.ZQPICURL = item.ZQPICURL ? item.ZQPICURL : 'https://imy.sgmart.edu.cn/new/mobile/dist/_logo.png?7c625c7ee388deb94cebe3d22ca7bb49';
+          return item;
+        })
         cb()
       })
     },
@@ -229,7 +233,7 @@ export default {
       this.$router.push('message')
     },
     handlePassword() {
-
+      location.href = 'https://authserver.sgmart.edu.cn/authserver/mobilePasswordChange.do'
     },
     openUrl(data, flag = 0) {
       if (flag === 1) {
@@ -280,7 +284,7 @@ export default {
       this.$get(
         'https://imy.sgmart.edu.cn/psfw/sys/smgzdycdlxt/zdycdl/AddYdCollectApp.do',
         {
-          data: JSON.stringify({appId: data.appId,appName: data.name,picSrc: data.iconUrl})
+          data: JSON.stringify({appId: data.appId,appName: encodeURI(data.name),picSrc: data.iconUrl})
         }
       ).then(res => {
         this.getCyServerList(() => {
@@ -297,6 +301,9 @@ export default {
 </script>
 
 <style scoped>
+  .mint-swipe-items-wrap>div{
+    text-align: center;
+  }
 .page_border {
   background: #F7F7F7;
   width: 100vw;
